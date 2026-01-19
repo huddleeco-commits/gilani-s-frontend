@@ -19,7 +19,7 @@ import DashboardPage from './pages/DashboardPage';
 import RewardsPage from './pages/RewardsPage';
 import WalletPage from './pages/WalletPage';
 import ProfilePage from './pages/ProfilePage';
-
+import OrderPage from './pages/OrderPage';
 
 // Cart context
 import { CartProvider } from './context/CartContext';
@@ -67,6 +67,7 @@ function NavWrapper({ children }) {
             <Link to="/contact" style={styles.navLink}>Contact</Link>
             <Link to="/gallery" style={styles.navLink}>Gallery</Link>
             <Link to="/menu" style={styles.navLink}>Menu</Link>
+            <Link to="/order" style={styles.navLink}>Order</Link>
             <Link to="/booking" style={styles.navLink}>Booking</Link>
             <Link to="/dashboard" style={styles.navLink}>Dashboard</Link>
             <Link to="/rewards" style={styles.navLink}>Rewards</Link>
@@ -99,6 +100,7 @@ function NavWrapper({ children }) {
             <Link to="/contact" style={styles.mobileNavLink}>Contact</Link>
             <Link to="/gallery" style={styles.mobileNavLink}>Gallery</Link>
             <Link to="/menu" style={styles.mobileNavLink}>Menu</Link>
+            <Link to="/order" style={styles.mobileNavLink}>Order</Link>
             <Link to="/booking" style={styles.mobileNavLink}>Booking</Link>
             <Link to="/dashboard" style={styles.mobileNavLink}>Dashboard</Link>
             <Link to="/rewards" style={styles.mobileNavLink}>Rewards</Link>
@@ -134,6 +136,7 @@ function App() {
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/gallery" element={<GalleryPage />} />
               <Route path="/menu" element={<MenuPage />} />
+              <Route path="/order" element={<OrderPage />} />
               <Route path="/booking" element={<BookingPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/rewards" element={<RewardsPage />} />
