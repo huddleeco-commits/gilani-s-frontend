@@ -1,86 +1,78 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollReveal, ParallaxSection, TiltCard, GlowEffect } from '../effects';
-import { Star, Wine, ChefHat, Clock, MapPin, Phone } from 'lucide-react';
+import { Star, Wine, ChefHat, Clock, MapPin, Phone, Loader2 } from 'lucide-react';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'https://gilani-s-backend.up.railway.app';
 
 const MenuPage = () => {
+  const [menuData, setMenuData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const THEME = {
-    colors: { 
-      primary: '#722F37', 
-      accent: '#C9A961', 
-      background: '#F5F0E6', 
+    colors: {
+      primary: '#722F37',
+      accent: '#C9A961',
+      background: '#F5F0E6',
       dark: '#1A1A1A',
-      text: '#1A1A1A' 
+      text: '#1A1A1A'
     },
-    fonts: { 
-      heading: "Playfair Display, Georgia, serif", 
-      body: "Lato, system-ui, sans-serif" 
+    fonts: {
+      heading: "Playfair Display, Georgia, serif",
+      body: "Lato, system-ui, sans-serif"
     },
     spacing: { sectionPadding: '80px' }
   };
 
-  const prixFixeMenus = [
-    {
-      name: "Le Menu Classique",
-      price: 85,
-      courses: "Four Courses",
-      description: "A timeless journey through French culinary tradition",
-      appetizer: "Escargots de Bourgogne with garlic herb butter",
-      soup: "French onion soup with Gruyère gratinée",
-      main: "Côte de Bœuf with red wine reduction",
-      dessert: "Crème brûlée à la vanille"
-    },
-    {
-      name: "Le Menu Signature", 
-      price: 125,
-      courses: "Five Courses",
-      description: "Chef's contemporary interpretation of classic French cuisine",
-      appetizer: "Pan-seared foie gras with fig compote",
-      soup: "Lobster bisque with cognac cream",
-      main: "Dry-aged Ribeye with truffle butter",
-      cheese: "Selection of artisanal French cheeses",
-      dessert: "Chocolate soufflé with Grand Marnier"
-    },
-    {
-      name: "Le Menu Dégustation",
-      price: 175,
-      courses: "Seven Courses", 
-      description: "An extraordinary culinary voyage with wine pairings",
-      note: "Chef's tasting menu changes seasonally",
-      highlight: "Includes premium wine pairings"
-    }
-  ];
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/api/menu`);
+        if (!response.ok) throw new Error('Failed to fetch menu');
+        const data = await response.json();
+        setMenuData(data);
+      } catch (err) {
+        console.error('Error fetching menu:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMenu();
+  }, []);
 
-  const steakSelection = [
-    {
-      name: "Filet de Bœuf Wellington",
-      cut: "8oz Prime Filet Mignon",
-      price: 52,
-      description: "Wrapped in pâté and puff pastry, served with red wine jus",
-      aging: "28-day dry aged"
-    },
-    {
-      name: "Côte de Bœuf",
-      cut: "16oz Prime Ribeye",
-      price: 48,
-      description: "Bone-in ribeye with herb compound butter",
-      aging: "35-day dry aged"
-    },
-    {
-      name: "Entrecôte Bordelaise",
-      cut: "14oz New York Strip",
-      price: 45,
-      description: "Classic French cut with shallot and red wine reduction",
-      aging: "28-day dry aged"
-    },
-    {
-      name: "Tomahawk Wagyu",
-      cut: "32oz A5 Japanese Wagyu",
-      price: 185,
-      description: "Ultimate indulgence for two, carved tableside",
-      aging: "Fresh, never frozen"
-    }
-  ];
+  // Extract categories from menu data
+  const getCategory = (id) => {
+    if (!menuData?.menu?.categories) return null;
+    return menuData.menu.categories.find(cat => cat.id === id);
+  };
 
+  const prixFixeCategory = getCategory('prix-fixe');
+  const steaksCategory = getCategory('steaks');
+  const startersCategory = getCategory('starters');
+  const sidesCategory = getCategory('sides');
+  const dessertsCategory = getCategory('desserts');
+
+  // Map prix-fixe items for display
+  const prixFixeMenus = prixFixeCategory?.items?.map(item => ({
+    name: item.name,
+    price: item.price,
+    courses: item.courses ? `${item.courses} Courses` : 'Multi-Course',
+    description: item.description,
+    note: item.courses === 7 ? "Chef's tasting menu changes seasonally" : null,
+    highlight: item.courses === 7 ? "Includes premium wine pairings" : null
+  })) || [];
+
+  // Map steaks for display
+  const steakSelection = steaksCategory?.items?.map(item => ({
+    name: item.name,
+    cut: item.description?.split(',')[0] || '',
+    price: item.price,
+    description: item.description?.split(',').slice(1).join(',').trim() || item.description,
+    aging: item.aging || ''
+  })) || [];
+
+  // Wine pairings (static for now, could be added to brain.json)
   const wines = [
     {
       name: "Châteauneuf-du-Pape",
@@ -91,7 +83,7 @@ const MenuPage = () => {
     },
     {
       name: "Château Margaux",
-      vintage: "2016", 
+      vintage: "2016",
       region: "Bordeaux",
       price: 325,
       pairing: "Exceptional with Filet Wellington"
@@ -104,6 +96,55 @@ const MenuPage = () => {
       pairing: "Complements our dry-aged selections"
     }
   ];
+
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: THEME.colors.background
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <Loader2
+            style={{
+              width: 48,
+              height: 48,
+              color: THEME.colors.primary,
+              animation: 'spin 1s linear infinite'
+            }}
+          />
+          <p style={{
+            marginTop: 16,
+            fontFamily: THEME.fonts.heading,
+            color: THEME.colors.primary
+          }}>
+            Loading Menu...
+          </p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); }}`}</style>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: THEME.colors.background
+      }}>
+        <div style={{ textAlign: 'center', padding: 40 }}>
+          <p style={{ color: THEME.colors.primary, fontSize: '1.2rem' }}>
+            Unable to load menu. Please try again later.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ backgroundColor: THEME.colors.background, minHeight: '100vh' }}>
